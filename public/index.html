@@ -1,0 +1,65 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="./styles/semantic.min.css" />
+    <link rel="stylesheet" href="./styles/style.css" />
+    <title>Actualización Db</title>
+  </head>
+  <body>
+    <div class="ui container" style="margin-top: 2rem">
+      <div class="ui segments raised">
+        <div class="ui segment primary">
+          <h1 class="ui blue header">
+            Actualización de datos del sistema Saint por lotes.
+            <div class="sub header">Usando una hoja de calculo en microsoft Excel (.xls)</div>
+          </h1>
+        </div>
+
+        <div class="ui segment">
+          <p class="">
+            <a href="listadoinventario.xls" class="ui teal button small upper"
+              >listadoinventario.xls</a
+            >
+            Hoja de calculo de microsoft excel, para actualizar inventario (codigo, referencia,
+            descripcion, costo e inventario).
+          </p>
+
+          <p class="">
+            <a href="listadocliente.xls" class="ui violet button small">listadocliente.xls</a>
+
+            Formato de hoja de calculo de microsoft excel, para insertar nuevos clientes a la base
+            de datos.
+          </p>
+
+          <p class="">
+            <a href="listadoproveedor.xls" class="ui orange button small"> listadoproveed.xls </a>
+            Formato de hoja de calculo de microsoft excel, para insertar nuevos proveedores a la
+            base de datos.
+          </p>
+
+          <div class="ui divider"></div>
+
+          <form action="/api/file/inv" method="POST" enctype="multipart/form-data">
+            <input type="file" name="fileups" />
+            <button class="ui teal button small" type="submit">Actualizar Inventario</button>
+          </form>
+
+          <div class="ui divider"></div>
+
+          <form action="/api/file/cliente" method="POST" enctype="multipart/form-data">
+            <input type="file" name="fileups" />
+            <button class="ui violet button small" type="submit">Insertar Clientes</button>
+          </form>
+
+          <div class="ui divider"></div>
+
+          <form action="/api/file/proveedor" method="POST" enctype="multipart/form-data">
+            <input type="file" name="fileups" />
+            <button class="ui orange button small" type="submit">Insertar Proveedores</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
