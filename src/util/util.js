@@ -11,7 +11,7 @@ const insertDbClienteAsync = async (xlsfileName) => {
 
   try {
     let query2 = '';
-    let rowsfind = '';
+    let rowsfind = undefined;
     let contadorUpdate = 0;
     let contadorInsert = 0;
 
@@ -29,9 +29,8 @@ const insertDbClienteAsync = async (xlsfileName) => {
           .trim()}',1, 0, 1,'1234','${xrow.direccion ? xrow.direccion : ''}', '${
           xrow.telefono ? xrow.telefono : ''
         }','2021-06-07', 1,0,1)`;
-        // console.log(query2);
         const consulta = await conn.query(query2);
-        // console.log(chalk.yellowBright(`[INSERTADO] => Codigo ${xrow.codigo} - ${xrow.nombre}`));
+        console.log(chalk.yellowBright(`[INSERTADO] => Codigo ${xrow.codigo} - ${xrow.nombre}`));
         contadorInsert++;
       }
     }
@@ -61,15 +60,14 @@ const insertDbProvAsync = async (xlsfileName) => {
       );
       // console.log(xrow.codigo)
       if (xrow.codigo !== undefined && rowsfind.recordset[0] == undefined) {
-        // console.log(xrow.codigo);
-        const query2 = `INSERT INTO SAPROV(CodProv, Descrip, Direc1, Telef, Activo, FechaE) VALUES ('${xrow.codigo
+        const query2 = `INSERT INTO SAPROV(CodProv, Descrip, Direc1, Telef,Movil,Email, Activo, FechaE, Pais, esMoneda, esReten, TipoID,ID3) VALUES ('${xrow.codigo
           .toString()
           .trim()}','${xrow.nombre.toString().trim()}','${
           xrow.direccion ? xrow.direccion : ''
-        }', '${xrow.telefono ? xrow.telefono : ''}',1,'2021-07-07' )`;
-        // console.log(query2);
+        }', '${xrow.telefono ? xrow.telefono : ''}','${xrow.movil ? xrow.movil : ''}','${xrow.email ? xrow.email : ''}' ,1,'2021-07-07',1,1,1,1,'${xrow.codigo.toString().trim()}')`;
+        console.log(query2);
         const consulta = await conn.query(query2);
-        // console.log(chalk.yellowBright(`[INSERTADO] => Codigo ${xrow.codigo} - ${xrow.Descrip}`));
+        console.log(chalk.yellowBright(`[INSERTADO] => Codigo ${xrow.codigo} - ${xrow.nombre}`));
         contadorInsert++;
       }
     }
@@ -80,7 +78,7 @@ const insertDbProvAsync = async (xlsfileName) => {
   }
 };
 
-const sqlUpdateSAPROD = (xrow) => {
+const sqlUpdateSAPROD = (xrow, NoAplica,  vPrecio01, vPrecio02) => {
   let query2 = '';
   if (xrow.Existencia !== undefined && xrow.Existencia !== NoAplica)
     query2 = `UPDATE SAPROD SET CostAct=${xrow.CostoActual}, CostPro=${xrow.CostoActual}, Existen=${xrow.Existencia}, Precio1=${vPrecio01}, Precio2=${vPrecio02}, Precio3=${vPrecio01}, PrecioIU1=50, PrecioIU2=60, PrecioIU3=50  WHERE CodProd='${xrow.Codigo}'`;
@@ -89,7 +87,7 @@ const sqlUpdateSAPROD = (xrow) => {
   return query2;
 };
 
-const sqlInsertSAPROD = (xrow) => {
+const sqlInsertSAPROD = (xrow, NoAplica,  vPrecio01, vPrecio02) => {
   let query2 = '';
   const xreferencia = xrow.Referencia !== NoAplica ? xrow.Referencia : xrow.Codigo;
   if (xrow.Existencia !== undefined && xrow.Existencia !== NoAplica)
@@ -139,21 +137,21 @@ const actualizarBDAsync = async (xlsfileName) => {
         vPrecio02 = xrow.CostoActual * util02 + xrow.CostoActual;
 
         if (rowsfind.recordset[0] !== undefined) {
-          // const consulta = await conn.query(sqlUpdateSAPROD(xrow));
-          // console.log(
-          //   chalk.blueBright(`[ACTUALIZADO] => Codigo ${xrow.Codigo} - ${xrow.Descripcion}`)
-          // );
+          const consulta = await conn.query(sqlUpdateSAPROD(xrow,NoAplica, vPrecio01, vPrecio02));
+          console.log(
+            chalk.blueBright(`[ACTUALIZADO] => Codigo ${xrow.Codigo} - ${xrow.Descripcion}`)
+          );
           contadorUpdate++;
         } else {
-          // const consulta = await conn.query(sqlInsertSAPROD(xrow));
-          // console.log(
-          //   chalk.yellowBright(`[INSERTADO] => Codigo ${xrow.Codigo} - ${xrow.Descripcion}`)
-          // );
+          const consulta = await conn.query(sqlInsertSAPROD(xrow, NoAplica,  vPrecio01, vPrecio02));
+          console.log(
+            chalk.yellowBright(`[INSERTADO] => Codigo ${xrow.Codigo} - ${xrow.Descripcion}`)
+          );
           contadorInsert++;
         }
-        // if (xrow.Existencia !== undefined && xrow.Existencia !== NoAplica)
-        //   await actualizarExistencia(conn, xrow);
-        // await actualizarImpuesto(conn, 'SATAXPRD', xrow);
+        if (xrow.Existencia !== undefined && xrow.Existencia !== NoAplica)
+          await actualizarExistencia(conn, xrow);
+        await actualizarImpuesto(conn, 'SATAXPRD', xrow);
       }
     }
     return { contadorUpdate, contadorInsert };
@@ -174,8 +172,8 @@ const actualizarExistencia = async (conn, xrow) => {
     if (rowsfind.recordset[0] !== undefined) {
       query2 = `UPDATE SAEXIS SET Existen=${
         xrow.Existencia
-      }  WHERE CodProd='${xrow.Codigo.toString()}'`;
-      // console.log(query2);
+      } WHERE CodProd='${xrow.Codigo.toString()}'`;
+      console.log(query2);
       const consulta = await conn.query(query2);
       console.log(
         chalk.blueBright(`[ACTUALIZADO - INV] => Codigo ${xrow.Codigo} - ${xrow.Descripcion}`)
@@ -183,7 +181,7 @@ const actualizarExistencia = async (conn, xrow) => {
       contadorUpdate++;
     } else {
       const query2 = `INSERT INTO SAEXIS(CodSucu, CodProd, CodUbic, PuestoI, Existen) VALUES ('00000', '${xrow.Codigo}','01','01',${xrow.Existencia})`;
-      //console.log(query2);
+      console.log(query2);
       //throw new Error('Error Controlado')
       const consulta = await conn.query(query2);
       console.log(
@@ -207,8 +205,7 @@ const actualizarImpuesto = async (conn, tableName, xrow) => {
       `SELECT CodProd FROM ${tableName} where CodProd='${xrow.Codigo}' and CodTaxs='IVA'`
     );
     if (rowsfind.recordset[0] !== undefined) {
-      query2 = `UPDATE ${tableName} SET CodTaxs='IVA', Monto=16, EsPorct=1  WHERE CodProd='${xrow.Codigo.toString()}'`;
-      //console.log(query2)
+      query2 = `UPDATE ${tableName} SET CodTaxs='IVA', Monto=16, EsPorct=1  WHERE CodProd='${xrow.Codigo.toString()}' and CodTaxs='IVA'`;
       const consulta = await conn.query(query2);
       console.log(
         chalk.blueBright(`[ACTUALIZADO - IVA] => Codigo ${xrow.Codigo} - ${xrow.Descripcion}`)
@@ -216,9 +213,6 @@ const actualizarImpuesto = async (conn, tableName, xrow) => {
       contadorUpdate++;
     } else {
       const query2 = `INSERT INTO ${tableName}(CodProd, CodTaxs, Monto, EsPorct) VALUES ('${xrow.Codigo}', 'IVA', 16, 1)`;
-      //console.log(query2)
-
-      //throw new Error('Error Controlado')
       const consulta = await conn.query(query2);
       console.log(
         chalk.yellowBright(`[INSERTADO - IVA] => Codigo ${xrow.Codigo} - ${xrow.Descripcion}`)
@@ -248,7 +242,7 @@ const insertarCodigoBarra = async () => {
       if (alterno == 'undefined') alterno = prod.CodProd;
 
       const query2 = `INSERT INTO SACODBAR(CodProd, CodAlte) VALUES ('${prod.CodProd}', '${alterno}')`;
-      console.log(prod.Refere, prod.CodProd);
+      // console.log(prod.Refere, prod.CodProd);
 
       //throw new Error('Error Controlado')
       const consulta = await conn.query(query2);

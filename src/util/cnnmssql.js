@@ -3,11 +3,14 @@ const chalk = require('chalk');
 const sql = require('mssql');
 require('dotenv').config();
 
+//console.log(process.env.SERVER_DB,'db')
+const SERVER_DB  = process.env.SERVER_DB  || 'ADMARIA\\SQLTORNIAMERICA';
+
 const sqlConfig = {
   user: process.env.USER_DB,
-  password: process.env.PASSWORD_DB,
+  password:  process.env.PASSWORD_DB,
   database: process.env.DATABASE,
-  server: process.env.SERVER_DB,
+  server:  SERVER_DB,
   pool: {
     max: 10,
     min: 0,
@@ -44,6 +47,8 @@ const getConnection = async () => {
     const pool = await new sql.ConnectionPool(sqlConfig);
     return await pool.connect();
   } catch (error) {
+console.log('Error')
+
     console.log(error);
   }
 };

@@ -39,20 +39,11 @@ const updateInvent = async (req) => {
     await fs.move(dirOrigen, fileDestino);
 
     const resultado = await actualizarBDAsync(fileDestino);
-    // replaza las viejas rutas x los nuevas (db)
-    // dataObject.destination = dirDestino;
-    // dataObject.path = fileDestino;
-    // dataObject.category = category;
-    // dataObject.comentary = comentary;
 
-    // - coneccion con base datos
-    // const db = await connect();
-    // const result = await db.collection(collectionName).insertOne(dataObject);
-    // assert.equal(1, result.insertedCount);
-    retAccion = { status: 201, insertedCount: 222, data: resultado };
+    retAccion = { status: 200, data: resultado };
   } catch (error) {
     // throw Error(`${error} in createEntity()`);
-    retAccion = { status: 400, insertedCount: 0, data: 22 };
+    retAccion = { status: 400, data:0 };
   }
   return retAccion;
 };
@@ -73,10 +64,10 @@ const insertClientes = async (req) => {
     await fs.move(dirOrigen, fileDestino);
 
     const resultado = await insertDbClienteAsync(fileDestino);
-    retAccion = { status: 201, insertedCount: 222, data: resultado };
+    retAccion = { status: 201, data: resultado };
   } catch (error) {
     // throw Error(`${error} in createEntity()`);
-    retAccion = { status: 400, insertedCount: 0, data: 22 };
+    retAccion = { status: 400,  data: 0 };
   }
   return retAccion;
 };
@@ -97,10 +88,10 @@ const insertProveedores = async (req) => {
     await fs.move(dirOrigen, fileDestino);
 
     const resultado = await insertDbProvAsync(fileDestino);
-    retAccion = { status: 201, insertedCount: 222, data: resultado };
+    retAccion = { status: 201, data: resultado };
   } catch (error) {
     // throw Error(`${error} in createEntity()`);
-    retAccion = { status: 400, insertedCount: 0, data: 22 };
+    retAccion = { status: 400,  data: 0 };
   }
   return retAccion;
 };
