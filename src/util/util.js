@@ -64,7 +64,9 @@ const insertDbProvAsync = async (xlsfileName) => {
           .toString()
           .trim()}','${xrow.nombre.toString().trim()}','${
           xrow.direccion ? xrow.direccion : ''
-        }', '${xrow.telefono ? xrow.telefono : ''}','${xrow.movil ? xrow.movil : ''}','${xrow.email ? xrow.email : ''}' ,1,'2021-07-07',1,1,1,1,'${xrow.codigo.toString().trim()}')`;
+        }', '${xrow.telefono ? xrow.telefono : ''}','${xrow.movil ? xrow.movil : ''}','${
+          xrow.email ? xrow.email : ''
+        }' ,1,'2021-07-07',1,1,1,1,'${xrow.codigo.toString().trim()}')`;
         console.log(query2);
         const consulta = await conn.query(query2);
         console.log(chalk.yellowBright(`[INSERTADO] => Codigo ${xrow.codigo} - ${xrow.nombre}`));
@@ -78,7 +80,7 @@ const insertDbProvAsync = async (xlsfileName) => {
   }
 };
 
-const sqlUpdateSAPROD = (xrow, NoAplica,  vPrecio01, vPrecio02) => {
+const sqlUpdateSAPROD = (xrow, NoAplica, vPrecio01, vPrecio02) => {
   let query2 = '';
   if (xrow.Existencia !== undefined && xrow.Existencia !== NoAplica)
     query2 = `UPDATE SAPROD SET CostAct=${xrow.CostoActual}, CostPro=${xrow.CostoActual}, Existen=${xrow.Existencia}, Precio1=${vPrecio01}, Precio2=${vPrecio02}, Precio3=${vPrecio01}, PrecioIU1=50, PrecioIU2=60, PrecioIU3=50  WHERE CodProd='${xrow.Codigo}'`;
@@ -87,7 +89,7 @@ const sqlUpdateSAPROD = (xrow, NoAplica,  vPrecio01, vPrecio02) => {
   return query2;
 };
 
-const sqlInsertSAPROD = (xrow, NoAplica,  vPrecio01, vPrecio02) => {
+const sqlInsertSAPROD = (xrow, NoAplica, vPrecio01, vPrecio02) => {
   let query2 = '';
   const xreferencia = xrow.Referencia !== NoAplica ? xrow.Referencia : xrow.Codigo;
   if (xrow.Existencia !== undefined && xrow.Existencia !== NoAplica)
@@ -137,13 +139,13 @@ const actualizarBDAsync = async (xlsfileName) => {
         vPrecio02 = xrow.CostoActual * util02 + xrow.CostoActual;
 
         if (rowsfind.recordset[0] !== undefined) {
-          const consulta = await conn.query(sqlUpdateSAPROD(xrow,NoAplica, vPrecio01, vPrecio02));
+          const consulta = await conn.query(sqlUpdateSAPROD(xrow, NoAplica, vPrecio01, vPrecio02));
           console.log(
             chalk.blueBright(`[ACTUALIZADO] => Codigo ${xrow.Codigo} - ${xrow.Descripcion}`)
           );
           contadorUpdate++;
         } else {
-          const consulta = await conn.query(sqlInsertSAPROD(xrow, NoAplica,  vPrecio01, vPrecio02));
+          const consulta = await conn.query(sqlInsertSAPROD(xrow, NoAplica, vPrecio01, vPrecio02));
           console.log(
             chalk.yellowBright(`[INSERTADO] => Codigo ${xrow.Codigo} - ${xrow.Descripcion}`)
           );

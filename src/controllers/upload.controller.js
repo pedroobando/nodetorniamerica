@@ -43,7 +43,7 @@ const updateInvent = async (req) => {
     retAccion = { status: 200, data: resultado };
   } catch (error) {
     // throw Error(`${error} in createEntity()`);
-    retAccion = { status: 400, data:0 };
+    retAccion = { status: 400, data: 0 };
   }
   return retAccion;
 };
@@ -67,7 +67,7 @@ const insertClientes = async (req) => {
     retAccion = { status: 201, data: resultado };
   } catch (error) {
     // throw Error(`${error} in createEntity()`);
-    retAccion = { status: 400,  data: 0 };
+    retAccion = { status: 400, data: 0 };
   }
   return retAccion;
 };
@@ -91,7 +91,7 @@ const insertProveedores = async (req) => {
     retAccion = { status: 201, data: resultado };
   } catch (error) {
     // throw Error(`${error} in createEntity()`);
-    retAccion = { status: 400,  data: 0 };
+    retAccion = { status: 400, data: 0 };
   }
   return retAccion;
 };
