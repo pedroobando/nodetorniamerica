@@ -20,7 +20,6 @@ const insertDbClienteAsync = async (xlsfileName) => {
         `SELECT CodClie, Descrip FROM SACLIE where CodClie='${xrow.codigo}' `
       );
       if (xrow.codigo !== undefined && rowsfind.recordset[0] == undefined) {
-        // console.log(xrow.codigo)
         const query2 = `INSERT INTO SACLIE(CodClie, Descrip, ID3, TipoID3, TipoID, Activo,DescOrder, Direc1, Telef,FechaE, TipoCli, TipoReg, TipoPVP) VALUES ('${xrow.codigo
           .toString()
           .replace('C I', 'V-')
@@ -58,7 +57,6 @@ const insertDbProvAsync = async (xlsfileName) => {
       rowsfind = await conn.query(
         `SELECT CodProv, Descrip FROM SAPROV where CodProv='${xrow.codigo}' `
       );
-      // console.log(xrow.codigo)
       if (xrow.codigo !== undefined && rowsfind.recordset[0] == undefined) {
         const query2 = `INSERT INTO SAPROV(CodProv, Descrip, Direc1, Telef,Movil,Email, Activo, FechaE, Pais, esMoneda, esReten, TipoID,ID3) VALUES ('${xrow.codigo
           .toString()
@@ -67,7 +65,6 @@ const insertDbProvAsync = async (xlsfileName) => {
         }', '${xrow.telefono ? xrow.telefono : ''}','${xrow.movil ? xrow.movil : ''}','${
           xrow.email ? xrow.email : ''
         }' ,1,'2021-07-07',1,1,1,1,'${xrow.codigo.toString().trim()}')`;
-        console.log(query2);
         const consulta = await conn.query(query2);
         console.log(chalk.yellowBright(`[INSERTADO] => Codigo ${xrow.codigo} - ${xrow.nombre}`));
         contadorInsert++;
@@ -93,21 +90,21 @@ const sqlInsertSAPROD = (xrow, NoAplica, vPrecio01, vPrecio02) => {
   let query2 = '';
   const xreferencia = xrow.Referencia !== NoAplica ? xrow.Referencia : xrow.Codigo;
   if (xrow.Existencia !== undefined && xrow.Existencia !== NoAplica)
-    query2 = `INSERT INTO SAPROD(CodProd, Descrip, Descrip2, Refere, Existen, CostAct, CostPro, Precio1, Precio2, Precio3,  PrecioIU1, PrecioIU2, PrecioIU3) VALUES ('${
+    query2 = `INSERT INTO SAPROD(CodProd, Descrip, Descrip2, Refere, Existen, CostAct, CostPro, Precio1, Precio2, Precio3,  PrecioIU1, PrecioIU2, PrecioIU3,CodInst, Activo) VALUES ('${
       xrow.Codigo
     }','${xrow.Descripcion.toString().slice(0, 40)}','${xrow.Descripcion.toString().slice(
       35
     )}', '${xreferencia}',${xrow.Existencia},${xrow.CostoActual}, ${
       xrow.CostoActual
-    }, ${vPrecio01},${vPrecio02},${vPrecio01},50,60,50)`;
+    }, ${vPrecio01},${vPrecio02},${vPrecio01},50,60,50,1,1)`;
   else
-    query2 = `INSERT INTO SAPROD(CodProd, Descrip, Descrip2, Refere, CostAct, CostPro, Precio1, Precio2, Precio3,  PrecioIU1, PrecioIU2, PrecioIU3) VALUES ('${
+    query2 = `INSERT INTO SAPROD(CodProd, Descrip, Descrip2, Refere, CostAct, CostPro, Precio1, Precio2, Precio3,  PrecioIU1, PrecioIU2, PrecioIU3, CodInst, Activo) VALUES ('${
       xrow.Codigo
     }','${xrow.Descripcion.toString().slice(0, 40)}','${xrow.Descripcion.toString().slice(
       35
     )}', '${xreferencia}',${xrow.CostoActual}, ${
       xrow.CostoActual
-    }, ${vPrecio01},${vPrecio02},${vPrecio01},50,60,50)`;
+    }, ${vPrecio01},${vPrecio02},${vPrecio01},50,60,50,1,1)`;
 
   return query2;
 };
@@ -154,6 +151,7 @@ const actualizarBDAsync = async (xlsfileName) => {
         if (xrow.Existencia !== undefined && xrow.Existencia !== NoAplica)
           await actualizarExistencia(conn, xrow);
         await actualizarImpuesto(conn, 'SATAXPRD', xrow);
+        await actualizarCodigoBarra(conn, 'SACODBAR', xrow);
       }
     }
     return { contadorUpdate, contadorInsert };
@@ -175,7 +173,6 @@ const actualizarExistencia = async (conn, xrow) => {
       query2 = `UPDATE SAEXIS SET Existen=${
         xrow.Existencia
       } WHERE CodProd='${xrow.Codigo.toString()}'`;
-      console.log(query2);
       const consulta = await conn.query(query2);
       console.log(
         chalk.blueBright(`[ACTUALIZADO - INV] => Codigo ${xrow.Codigo} - ${xrow.Descripcion}`)
@@ -183,8 +180,6 @@ const actualizarExistencia = async (conn, xrow) => {
       contadorUpdate++;
     } else {
       const query2 = `INSERT INTO SAEXIS(CodSucu, CodProd, CodUbic, PuestoI, Existen) VALUES ('00000', '${xrow.Codigo}','01','01',${xrow.Existencia})`;
-      console.log(query2);
-      //throw new Error('Error Controlado')
       const consulta = await conn.query(query2);
       console.log(
         chalk.yellowBright(`[INSERTADO - INV] => Codigo ${xrow.Codigo} - ${xrow.Descripcion}`)
@@ -227,33 +222,30 @@ const actualizarImpuesto = async (conn, tableName, xrow) => {
   }
 };
 
-const insertarCodigoBarra = async () => {
-  const conn = await pool.getConnection();
-
+const actualizarCodigoBarra = async (conn, tableName, xrow) => {
   try {
     let query2 = '';
     let rowsfind = '';
     let contadorUpdate = 0;
     let contadorInsert = 0;
 
-    rowsfind = await conn.query(`SELECT CodProd, Descrip,Refere FROM SAPROD Order By CodProd`);
-
-    rowsfind.recordset.map(async (prod) => {
-      //console.log(prod.CodProd)
-      let alterno = prod.Refere;
-      if (alterno == 'undefined') alterno = prod.CodProd;
-
-      const query2 = `INSERT INTO SACODBAR(CodProd, CodAlte) VALUES ('${prod.CodProd}', '${alterno}')`;
-      // console.log(prod.Refere, prod.CodProd);
-
-      //throw new Error('Error Controlado')
+    rowsfind = await conn.query(
+      `SELECT CodProd, CodAlte FROM ${tableName} WHERE CodProd = '${xrow.Codigo.toString()}'`
+    );
+    if (rowsfind.recordset[0] !== undefined) {
+      query2 = `UPDATE ${tableName} SET CodAlte='${xrow.Codigo.toString()}' WHERE CodProd='${xrow.Codigo.toString()}'`;
       const consulta = await conn.query(query2);
-      //console.log(chalk.yellowBright(`[INSERTADO - INV] => Codigo ${xrow.Codigo} - ${xrow.Descripcion}`));
-      //contadorInsert++;
-    });
+      console.log(chalk.blueBright(`[ACTUALIZADO - CODIGO BARRA] => Codigo ${xrow.Codigo}`));
+      contadorUpdate++;
+    } else {
+      const query2 = `INSERT INTO ${tableName}(CodProd, CodAlte) VALUES ('${xrow.Codigo.toString()}', '${xrow.Codigo.toString()}')`;
+      const consulta = await conn.query(query2);
+      console.log(chalk.yellowBright(`[INSERTADO - CODIGO BARRA] => Codigo ${xrow.Codigo}`));
+      contadorInsert++;
+    }
   } catch (error) {
     console.log(error);
-    throw new Error('Error Controlado');
+    throw new Error('Error Controlado - codigo barra');
   }
 };
 
