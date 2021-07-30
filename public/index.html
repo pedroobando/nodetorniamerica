@@ -41,21 +41,21 @@
           <div class="ui divider"></div>
 
           <form action="/api/file/inv" method="POST" enctype="multipart/form-data">
-            <input type="file" name="fileups" />
+            <input type="file" name="fileups" accept="application/vnd.ms-excel" />
             <button class="ui teal button small" type="submit">Actualizar Inventario</button>
           </form>
 
           <div class="ui divider"></div>
 
           <form action="/api/file/cliente" method="POST" enctype="multipart/form-data">
-            <input type="file" name="fileups" />
+            <input type="file" name="fileups" accept="application/vnd.ms-excel"/>
             <button class="ui violet button small" type="submit">Insertar Clientes</button>
           </form>
 
           <div class="ui divider"></div>
 
           <form action="/api/file/proveedor" method="POST" enctype="multipart/form-data">
-            <input type="file" name="fileups" />
+            <input type="file" name="fileups" accept="application/vnd.ms-excel"/>
             <button class="ui orange button small" type="submit">Insertar Proveedores</button>
           </form>
         </div>

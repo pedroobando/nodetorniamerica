@@ -179,7 +179,7 @@ const actualizarExistencia = async (conn, xrow) => {
       );
       contadorUpdate++;
     } else {
-      const query2 = `INSERT INTO SAEXIS(CodSucu, CodProd, CodUbic, PuestoI, Existen) VALUES ('00000', '${xrow.Codigo}','01','01',${xrow.Existencia})`;
+      const query2 = `INSERT INTO SAEXIS(CodSucu, CodProd, CodUbic, PuestoI, Existen) VALUES ('00000', '${xrow.Codigo}','001','01',${xrow.Existencia})`;
       const consulta = await conn.query(query2);
       console.log(
         chalk.yellowBright(`[INSERTADO - INV] => Codigo ${xrow.Codigo} - ${xrow.Descripcion}`)
